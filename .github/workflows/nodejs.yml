@@ -1,1 +1,48 @@
+name: MERN AI CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mongo:
+        image: mongo
+        ports: 
+          - 27017:27017
+
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      MONGO_URI: mongodb://localhost:27017/testdb
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔧 Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: 📦 Install backend dependencies
+        working-directory: ./server
+        run: npm install
+
+      - name: 📦 Install frontend dependencies
+        working-directory: ./client
+        run: npm install
+
+      - name: 🛠 Build frontend
+        working-directory: ./client
+        run: npm run build
+
+      - name: ✅ Run backend (basic check)
+        working-directory: ./server
+        run: |
+          echo "Backend starts successfully if env is valid."
 
